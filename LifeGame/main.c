@@ -4,10 +4,12 @@
 #include <string.h>
 #include <Windows.h>
 
-#define BOARD_WIDTH 5
-#define BOARD_HEIGHT 5
+#define BOARD_WIDTH 10
+#define BOARD_HEIGHT 10
 #define BOARD_REFRESH_RATE 1
 
+void init_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
+void process_game(int board[BOARD_HEIGHT][BOARD_WIDTH], int tmp_board[BOARD_HEIGHT][BOARD_WIDTH], int refresh_delay);
 void print_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
 int is_valid_bounds(int y, int x);
 int should_cell_live(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x);
@@ -28,13 +30,21 @@ int main(void) {
 	memset(tmp_board, 0, size_of_board);
 
 	// Initial Board Cells
-	board[0][1] = 1;
-	board[1][1] = 1;
-	board[2][1] = 1;
-	board[3][1] = 1;
-	board[4][1] = 1;
+	board[4][4] = 1;
+	board[4][5] = 1;
+	board[3][4] = 1;
+	board[3][5] = 1;
 
+	process_game(board, tmp_board, BOARD_REFRESH_RATE);
 
+	// Enf of use, Freeing from memory
+	free(board);
+	free(tmp_board);
+
+	return 0;
+}
+
+void process_game(int board[BOARD_HEIGHT][BOARD_WIDTH], int tmp_board[BOARD_HEIGHT][BOARD_WIDTH], int refresh_delay) {
 	do {
 		print_board(board);
 
@@ -44,19 +54,13 @@ int main(void) {
 			}
 		}
 
-		memcpy(board, tmp_board, size_of_board);
+		memcpy(board, tmp_board, sizeof(int[BOARD_HEIGHT][BOARD_WIDTH]));
 
-		Sleep(BOARD_REFRESH_RATE * 1000);
+		Sleep(refresh_delay * 1000);
 		system("cls");
 	} while (board_count_live_cells(board));
 
 	print_board(board);
-
-	// Enf of use, Freeing from memory
-	free(board);
-	free(tmp_board);
-
-	return 0;
 }
 
 void print_board(int board[BOARD_HEIGHT][BOARD_WIDTH]) {
@@ -121,6 +125,7 @@ int calculate_neighbors(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x) {
 		printf("Failed at function calculate_neighbors, at bounds check.");
 		exit(-1);
 	}
+
 	int neighbor_counter = 0;
 	int cell;
 	int tmp_y, tmp_x;
