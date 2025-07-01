@@ -8,8 +8,7 @@
 #define BOARD_HEIGHT 10
 #define BOARD_REFRESH_RATE 1
 
-void init_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
-void process_game(int board[BOARD_HEIGHT][BOARD_WIDTH], int tmp_board[BOARD_HEIGHT][BOARD_WIDTH], int refresh_delay);
+void process_board(int board[BOARD_HEIGHT][BOARD_WIDTH], int tmp_board[BOARD_HEIGHT][BOARD_WIDTH], int refresh_delay);
 void print_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
 int is_valid_bounds(int y, int x);
 int should_cell_live(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x);
@@ -35,7 +34,7 @@ int main(void) {
 	board[3][4] = 1;
 	board[3][5] = 1;
 
-	process_game(board, tmp_board, BOARD_REFRESH_RATE);
+	process_board(board, tmp_board, BOARD_REFRESH_RATE);
 
 	// Enf of use, Freeing from memory
 	free(board);
@@ -44,7 +43,7 @@ int main(void) {
 	return 0;
 }
 
-void process_game(int board[BOARD_HEIGHT][BOARD_WIDTH], int tmp_board[BOARD_HEIGHT][BOARD_WIDTH], int refresh_delay) {
+void process_board(int board[BOARD_HEIGHT][BOARD_WIDTH], int tmp_board[BOARD_HEIGHT][BOARD_WIDTH], int refresh_delay) {
 	do {
 		print_board(board);
 
