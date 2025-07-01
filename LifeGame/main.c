@@ -1,0 +1,127 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <ctype.h>
+#include <string.h>
+
+#define BOARD_WIDTH 5
+#define BOARD_HEIGHT 5
+
+void print_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
+int is_valid_bounds(int y, int x);
+int should_cell_live(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x);
+int calculate_neighbors(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x);
+
+int main(void) {
+	int size_of_board = sizeof(int[BOARD_HEIGHT][BOARD_WIDTH]);
+	int (*board)[BOARD_WIDTH] = malloc(size_of_board);
+	if (!board) {
+		printf("Couldn't allocate board.");
+		return -1;
+	}
+	
+	memset(board, 0, size_of_board);
+
+	// Initial Board Cells
+	board[1][1] = 1;
+	board[2][1] = 1;
+	board[2][2] = 1;
+	board[2][3] = 1;
+	board[2][4] = 1;
+	board[3][3] = 1;
+
+	printf("%d\n", calculate_neighbors(board, 2, 3));
+	printf("%d\n", should_cell_live(board, 2, 3));
+	printf("%d\n", calculate_neighbors(board, 2, 2));
+	printf("%d\n", should_cell_live(board, 2, 2));
+
+	print_board(board);
+
+	return 0;
+}
+
+void print_board(int board[BOARD_HEIGHT][BOARD_WIDTH]) {
+	for (int i = 0; i < BOARD_HEIGHT; i++) {
+		for (int j = 0; j < BOARD_WIDTH; j++) {
+			int node = board[i][j];
+			if (node) {
+				printf("%c", '#');
+			}
+			else {
+				printf("%c", '.');
+			}
+		}
+		printf("\n");
+	}
+}
+
+int is_valid_bounds(int y, int x) {
+	// Bounds check
+	if ((BOARD_HEIGHT <= y || y < 0) || (BOARD_WIDTH <= x || x < 0)) {
+		return 0;
+	}
+
+	return 1;
+}
+
+int should_cell_live(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x) {
+	if (!is_valid_bounds(y, x)) {
+		printf("Failed at function should_cell_live, at bounds check.");
+		exit(-1);
+	}
+
+	int cell = board[y][x];
+	int neighbors = calculate_neighbors(board, y, x);
+
+	/*
+		Node lives when:
+		Alive && (neighbors == 2 || neighbors == 3)
+		Dead && neighbors == 3
+	*/
+	if (cell && (neighbors == 2 || neighbors == 3)) {
+		return 1;
+	}
+	if (!cell && neighbors == 3) {
+		return 1;
+	}
+
+	/*
+		Node dies when:
+		Alive && neighbors < 2
+		Alive && neighbors > 3
+	*/
+	if (cell && (neighbors < 2 || 3 < neighbors)) {
+		return 0;
+	}
+
+	return 0;
+}
+
+int calculate_neighbors(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x) {
+	if (!is_valid_bounds(y, x)) {
+		printf("Failed at function calculate_neighbors, at bounds check.");
+		exit(-1);
+	}
+	int neighbor_counter = 0;
+	int cell;
+	int tmp_y, tmp_x;
+
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1; j <= 1; j++) {
+			if (!i && !j) {
+				continue;
+			}
+
+			tmp_y = y + i;
+			tmp_x = x + j;
+
+
+			cell = board[tmp_y][tmp_x];
+
+			if (is_valid_bounds(tmp_y, tmp_x) && cell) {
+				neighbor_counter++;
+			}
+		}
+	}
+
+	return neighbor_counter;
+}
