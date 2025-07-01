@@ -45,12 +45,16 @@ int main(void) {
 		}
 
 		memcpy(board, tmp_board, size_of_board);
-		Sleep(BOARD_REFRESH_RATE * 10);
 
+		Sleep(BOARD_REFRESH_RATE * 1000);
 		system("cls");
 	} while (board_count_live_cells(board));
 
 	print_board(board);
+
+	// Enf of use, Freeing from memory
+	free(board);
+	free(tmp_board);
 
 	return 0;
 }
