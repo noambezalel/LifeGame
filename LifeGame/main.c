@@ -2,37 +2,53 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
+#include <Windows.h>
 
 #define BOARD_WIDTH 5
 #define BOARD_HEIGHT 5
+#define BOARD_REFRESH_RATE 1
 
 void print_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
 int is_valid_bounds(int y, int x);
 int should_cell_live(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x);
 int calculate_neighbors(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x);
+int board_count_live_cells(int board[BOARD_HEIGHT][BOARD_WIDTH]);
 
 int main(void) {
 	int size_of_board = sizeof(int[BOARD_HEIGHT][BOARD_WIDTH]);
 	int (*board)[BOARD_WIDTH] = malloc(size_of_board);
-	if (!board) {
+	int (*tmp_board)[BOARD_WIDTH] = malloc(size_of_board);
+	if (!board || !tmp_board) {
 		printf("Couldn't allocate board.");
 		return -1;
 	}
-	
+
+	// zeroing boards
 	memset(board, 0, size_of_board);
+	memset(tmp_board, 0, size_of_board);
 
 	// Initial Board Cells
+	board[0][1] = 1;
 	board[1][1] = 1;
 	board[2][1] = 1;
-	board[2][2] = 1;
-	board[2][3] = 1;
-	board[2][4] = 1;
-	board[3][3] = 1;
+	board[3][1] = 1;
+	board[4][1] = 1;
 
-	printf("%d\n", calculate_neighbors(board, 2, 3));
-	printf("%d\n", should_cell_live(board, 2, 3));
-	printf("%d\n", calculate_neighbors(board, 2, 2));
-	printf("%d\n", should_cell_live(board, 2, 2));
+
+	do {
+		print_board(board);
+
+		for (int i = 0; i < BOARD_HEIGHT; i++) {
+			for (int j = 0; j < BOARD_WIDTH; j++) {
+				tmp_board[i][j] = should_cell_live(board, i, j);
+			}
+		}
+
+		memcpy(board, tmp_board, size_of_board);
+		Sleep(BOARD_REFRESH_RATE * 10);
+
+		system("cls");
+	} while (board_count_live_cells(board));
 
 	print_board(board);
 
@@ -124,4 +140,20 @@ int calculate_neighbors(int board[BOARD_HEIGHT][BOARD_WIDTH], int y, int x) {
 	}
 
 	return neighbor_counter;
+}
+
+int board_count_live_cells(int board[BOARD_HEIGHT][BOARD_WIDTH]) {
+	int counter = 0;
+
+	for (int i = 0; i < BOARD_HEIGHT; i++) {
+		for (int j = 0; j < BOARD_WIDTH; j++) {
+			int node = board[i][j];
+
+			if (node) {
+				counter++;
+			}
+		}
+	}
+
+	return counter;
 }
