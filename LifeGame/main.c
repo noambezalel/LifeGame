@@ -3,11 +3,14 @@
 #include <ctype.h>
 #include <string.h>
 #include <Windows.h>
+#include <conio.h>
+
 
 #define BOARD_WIDTH 10
 #define BOARD_HEIGHT 10
 #define BOARD_REFRESH_RATE 1
 
+void init_board_cells(int board[BOARD_HEIGHT][BOARD_WIDTH]);
 void process_board(int board[BOARD_HEIGHT][BOARD_WIDTH], int tmp_board[BOARD_HEIGHT][BOARD_WIDTH], int refresh_delay);
 void print_board(int board[BOARD_HEIGHT][BOARD_WIDTH]);
 int is_valid_bounds(int y, int x);
@@ -28,11 +31,7 @@ int main(void) {
 	memset(board, 0, size_of_board);
 	memset(tmp_board, 0, size_of_board);
 
-	// Initial Board Cells
-	board[4][4] = 1;
-	board[4][5] = 1;
-	board[3][4] = 1;
-	board[3][5] = 1;
+	init_board_cells(board);
 
 	process_board(board, tmp_board, BOARD_REFRESH_RATE);
 
@@ -41,6 +40,74 @@ int main(void) {
 	free(tmp_board);
 
 	return 0;
+}
+
+void init_board_cells(int board[BOARD_HEIGHT][BOARD_WIDTH]) {
+	char capture;
+	int x = 0;
+	int y = 0;
+	board[y][x] = 2;
+
+	int prev_x = 0;
+	int prev_y = 0;
+
+	while (1) {
+		print_board(board);
+		printf("Move using wasd, press SPACE to active\\deactive a cell, press ENTER to start the game.\n");
+
+		if (_kbhit()) {
+			capture = _getch();
+
+			// previous cell position
+			prev_x = x;
+			prev_y = y;
+
+			if (capture == ' ') {
+				if (board[y][x] == 0) board[y][x] = 1;
+				else if (board[y][x] == 1) board[y][x] = 0;
+				else if (board[y][x] == 2) board[y][x] = 3;
+				else if (board[y][x] == 3) board[y][x] = 2;
+
+				system("cls");
+				continue;
+			}
+			else if (is_valid_bounds(y, x - 1) && capture == 'a') {
+				x--;
+			}
+			else if (is_valid_bounds(y, x + 1) && capture == 'd') {
+				x++;
+			}
+			else if (is_valid_bounds(y - 1, x) && capture == 'w') {
+				y--;
+			}
+			else if (is_valid_bounds(y + 1, x) && capture == 's') {
+				y++;
+			}
+
+			// handle current cell
+			if (board[y][x] == 0) {
+				board[y][x] = 2;
+			}
+			if (board[y][x] == 1) {
+				board[y][x] = 3;
+			}
+			// handle previous cell
+			if (board[prev_y][prev_x] == 2) {
+				board[prev_y][prev_x] = 0;
+			}
+			if (board[prev_y][prev_x] == 3) {
+				board[prev_y][prev_x] = 1;
+			}
+
+			if (capture == 13) {
+				system("cls");
+				return;
+			}
+		}
+
+		Sleep(100);
+		system("cls");
+	}
 }
 
 void process_board(int board[BOARD_HEIGHT][BOARD_WIDTH], int tmp_board[BOARD_HEIGHT][BOARD_WIDTH], int refresh_delay) {
@@ -66,8 +133,14 @@ void print_board(int board[BOARD_HEIGHT][BOARD_WIDTH]) {
 	for (int i = 0; i < BOARD_HEIGHT; i++) {
 		for (int j = 0; j < BOARD_WIDTH; j++) {
 			int node = board[i][j];
-			if (node) {
+			if (node == 1) {
 				printf("%c", '#');
+			}
+			else if (node == 2) {
+				printf("%c", '?');
+			}
+			else if (node == 3) {
+				printf("%c", '$');
 			}
 			else {
 				printf("%c", '.');
